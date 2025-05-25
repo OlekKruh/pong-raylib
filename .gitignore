@@ -1,0 +1,35 @@
+# === VS Code ===
+# Игнорировать локальные настройки, но оставить конфигурации сборки/отладки
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/c_cpp_properties.json
+
+# === Компилятор и сборка ===
+*.exe
+*.obj
+*.o
+*.out
+*.a
+*.lib
+*.dll
+*.pdb
+*.ilk
+*.log
+
+# === Системные и временные файлы ===
+*~
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# === Резерв: cmake и прочие генераторы ===
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# === Специфичное под проект ===
+pong.exe
