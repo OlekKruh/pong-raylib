@@ -19,12 +19,12 @@ class Ball_Class
 {
     public:
     float x, y;
-    int speed_x, speed_y;
-    int radius;
+    float speed_x, speed_y;
+    float radius;
 
     void Draw()
     {
-        DrawCircle(x, y, radius, WHITE);
+        DrawCircle((int)x, (int)y, radius, WHITE);
     }
 
     void Update()
@@ -51,8 +51,8 @@ class Ball_Class
 
     void ResetBall()
     {
-        x = GetScreenWidth()/2;
-        y = GetScreenHeight()/2;
+        x = (float) GetScreenWidth() / 2;
+        y = (float)GetScreenHeight() / 2;
 
         int speed_choices[2] = {-1, 1};
         speed_y *= speed_choices[GetRandomValue(0,1)];
@@ -78,14 +78,14 @@ class Paddle_Class
 
     public:
     float x, y;
-    int speed_y;
+    float speed_y;
     float padl_width, padl_height;
     Color color;
     PlayerType type;
 
     void Draw()
-    {   
-        DrawRectangleRounded(Rectangle{x, y, padl_width, padl_height}, 0.8, 0, color);
+    {
+        DrawRectangleRounded(Rectangle{x, y, padl_width, padl_height}, 0.8f, 0, color);
     }
 
     void Update()
@@ -139,16 +139,17 @@ MenuOption ShowMenu()
     };
 
     int selected = 0;
+    int optionsSize = static_cast<int>(options.size());
 
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_DOWN))
         {
-            selected = (selected + 1) % options.size();
+            selected = (selected + 1) % optionsSize;
         }
         if (IsKeyPressed(KEY_UP))
         {
-            selected = (selected - 1 + options.size()) % options.size();
+            selected = (selected - 1 + optionsSize) % optionsSize;
         }
         if (IsKeyPressed(KEY_ENTER))
         {
@@ -206,15 +207,15 @@ int main()
     SetTargetFPS(60);
 
     ball.radius = 12;
-    ball.x = window_width/2;
-    ball.y = window_height/2;
+    ball.x = (float) window_width / 2;
+    ball.y = (float) window_height/2;
     ball.speed_x = 8;
     ball.speed_y = 8;
 
     player1.padl_width = 20;
     player1.padl_height = 100;
-    player1.x = window_width - player1.padl_width - 20;
-    player1.y = window_height/2 - player1.padl_height/2;
+    player1.x = ((float)window_width - player1.padl_width - 20);
+    player1.y = ((float)window_height / 2 - player1.padl_height / 2);
     player1.speed_y = 6;
     player1.color = BLUE;
     player1.type = PlayerType::Blue;
@@ -222,7 +223,7 @@ int main()
     player2.padl_width = 20;
     player2.padl_height = 100;
     player2.x = 20;
-    player2.y = window_height/2 - player2.padl_height/2;
+    player2.y = (float)window_height / 2 - player2.padl_height / 2;
     player2.speed_y = 6;
     player2.color = RED;
     player2.type = PlayerType::Red;
@@ -230,7 +231,7 @@ int main()
     cpu.padl_width = 20;
     cpu.padl_height = 100;
     cpu.x = 20;
-    cpu.y = window_height/2 - cpu.padl_height/2;
+    cpu.y = (float)window_height / 2 - cpu.padl_height / 2;
     cpu.speed_y = 6;
     cpu.color = RED;
 
@@ -256,7 +257,7 @@ int main()
 
         case MenuOption::Exit:
             CloseWindow();
-            return 0;        
+            return 0;
     }
 
     ShowWinnerScreen();
@@ -270,7 +271,7 @@ void PvE(Ball_Class &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
     //1.Update game objects positions.
     ball.Update();
     player1.Update();
-    cpu.Update(ball.y);
+    cpu.Update((int)ball.y);
         
     //2.Collision detection
     if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
