@@ -2,51 +2,6 @@
 
 #include "game.h"
 
-class Ball_Class
-{
-    public:
-    float x, y;
-    float speed_x, speed_y;
-    float radius;
-
-    void Draw() const
-    {
-        DrawCircle((int)x, (int)y, radius, WHITE);
-    }
-
-    void Update()
-    {
-        x += speed_x;
-        y += speed_y;
-
-        if (y + radius >= GetScreenHeight() || y-radius <=0)
-        {
-            speed_y *= -1;
-        }
-
-        if (x + radius >= GetScreenWidth())
-        {
-            GameController::GetInstance()->IncreaseCpuScore();
-            ResetBall();
-        }
-        if (x-radius <=0)
-        {
-            GameController::GetInstance()->IncreasePlayerScore();
-            ResetBall();
-        }
-    }
-
-    void ResetBall()
-    {
-        x = (float) GetScreenWidth() / 2;
-        y = (float)GetScreenHeight() / 2;
-
-        int speed_choices[2] = {-1, 1};
-        speed_y *= speed_choices[GetRandomValue(0,1)];
-        speed_x *= speed_choices[GetRandomValue(0,1)];
-    }
-};
-
 class Paddle_Class
 {
     protected:
@@ -179,13 +134,12 @@ MenuOption ShowMenu()
     return MenuOption::Exit;
 }
 
-Ball_Class ball;
 Paddle_Class player1; 
 Paddle_Class player2;
 CpuPaddle_Class cpu;
 
-void PvE(Ball_Class &ball, Paddle_Class &player1, CpuPaddle_Class &cpu);
-void PvP(Ball_Class &ball, Paddle_Class &player1, Paddle_Class &player2);
+void PvE(Ball &ball, Paddle_Class &player1, CpuPaddle_Class &cpu);
+void PvP(Ball &ball, Paddle_Class &player1, Paddle_Class &player2);
 void ShowWinnerScreen();
 
 int main() 
@@ -193,11 +147,7 @@ int main()
     InitWindow(window_width, window_height, game_name.c_str());
     SetTargetFPS(60);
 
-    ball.radius = 12;
-    ball.x = (float) window_width / 2;
-    ball.y = (float) window_height/2;
-    ball.speed_x = 8;
-    ball.speed_y = 8;
+    Ball ball((float)window_width / 2, (float)window_height / 2, 8, 8, 12, WHITE);
 
     player1.padl_width = 20;
     player1.padl_height = 100;
@@ -231,6 +181,8 @@ int main()
         case MenuOption::OnePlayer:
             while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
             {
+                playerScore = GameController::GetInstance()->GetPlayerScore();
+                cpuScore = GameController::GetInstance()->GetCpuScore();
                 PvE(ball, player1, cpu);
                 if (IsKeyPressed(KEY_ESCAPE)) break;
             }
@@ -239,6 +191,8 @@ int main()
         case MenuOption::TwoPlayers:
             while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
             {
+                playerScore = GameController::GetInstance()->GetPlayerScore();
+                cpuScore = GameController::GetInstance()->GetCpuScore();
                 PvP(ball, player1, player2);
                 if (IsKeyPressed(KEY_ESCAPE)) break;
             }
@@ -255,7 +209,7 @@ int main()
     return 0;
 }
 
-void PvE(Ball_Class &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
+void PvE(Ball &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
 {
     //1.Update game objects positions.
     ball.Update();
@@ -293,7 +247,7 @@ void PvE(Ball_Class &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
     EndDrawing();
 };
 
-void PvP(Ball_Class &ball, Paddle_Class &player1, Paddle_Class &player2)
+void PvP(Ball &ball, Paddle_Class &player1, Paddle_Class &player2)
 {
     //1.Update game objects positions.
     ball.Update();

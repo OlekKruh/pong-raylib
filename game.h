@@ -39,3 +39,38 @@ private:
 	int player_score = 0;
 	int cpu_score = 0;
 };
+
+
+class IGameObject
+{
+public:
+	virtual void Draw() const = 0;
+	virtual void Update() = 0;
+};
+
+class Ball : public IGameObject
+{
+public:
+	Ball(float _x, float _y, float _speed_x, float _speed_y, float _radius, Color _color) :
+		x(_x),
+		y(_y),
+		speed_x(_speed_y),
+		speed_y(_speed_y),
+		radius(_radius),
+		color(_color) {
+	}
+
+	~Ball() = default;
+
+	void Draw() const override;
+	void Update() override;
+
+private:
+	void ResetBall();
+
+public:
+	float x, y;
+	float speed_x, speed_y;
+	float radius;
+	Color color;
+};
