@@ -22,7 +22,7 @@ class Ball_Class
     float speed_x, speed_y;
     float radius;
 
-    void Draw()
+    void Draw() const
     {
         DrawCircle((int)x, (int)y, radius, WHITE);
     }
@@ -61,7 +61,7 @@ class Ball_Class
 };
 
 class Paddle_Class
-{   
+{
     protected:
 
     void LimitMovement()
@@ -83,7 +83,7 @@ class Paddle_Class
     Color color;
     PlayerType type;
 
-    void Draw()
+    void Draw() const
     {
         DrawRectangleRounded(Rectangle{x, y, padl_width, padl_height}, 0.8f, 0, color);
     }
