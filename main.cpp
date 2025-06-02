@@ -1,19 +1,6 @@
-#include <iostream>
-#include <raylib.h>
-#include <vector>
-#include <string>
+#pragma once
 
-const int window_width = 1280;
-const int window_height = 800;
-const std::string game_name = "PingPong Game";
-Color transparent_yellow = { 253, 249, 0, 20 };
-
-int player_score = 0;
-int cpu_score = 0;
-const int max_score = 5;
-
-enum class PlayerType { Blue, Red, Other };
-enum class MenuOption { OnePlayer, TwoPlayers, Exit };
+#include "game.h"
 
 class Ball_Class
 {
@@ -39,12 +26,12 @@ class Ball_Class
 
         if (x + radius >= GetScreenWidth())
         {
-            cpu_score++;
+            GameController::GetInstance()->IncreaseCpuScore();
             ResetBall();
         }
         if (x-radius <=0)
         {
-            player_score++;
+            GameController::GetInstance()->IncreasePlayerScore();
             ResetBall();
         }
     }
@@ -236,11 +223,13 @@ int main()
     cpu.color = RED;
 
     MenuOption choice = ShowMenu();
-    
+
+    int playerScore = GameController::GetInstance()->GetPlayerScore();
+    int cpuScore = GameController::GetInstance()->GetCpuScore();
     switch(choice)
     {
         case MenuOption::OnePlayer:
-            while(!WindowShouldClose() && player_score < max_score && cpu_score < max_score)
+            while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
             {
                 PvE(ball, player1, cpu);
                 if (IsKeyPressed(KEY_ESCAPE)) break;
@@ -248,7 +237,7 @@ int main()
             break;
 
         case MenuOption::TwoPlayers:
-            while(!WindowShouldClose() && player_score < max_score && cpu_score < max_score)
+            while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
             {
                 PvP(ball, player1, player2);
                 if (IsKeyPressed(KEY_ESCAPE)) break;
@@ -297,8 +286,9 @@ void PvE(Ball_Class &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
     ball.Draw();
     player1.Draw();
     cpu.Draw();
-    DrawText(TextFormat("%i", cpu_score) ,window_width/4 -20 ,20 ,80 ,WHITE);
-    DrawText(TextFormat("%i", player_score) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
+
+    DrawText(TextFormat("%i", GameController::GetInstance()->GetCpuScore()) ,window_width/4 -20 ,20 ,80 ,WHITE);
+    DrawText(TextFormat("%i", GameController::GetInstance()->GetPlayerScore()) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
 
     EndDrawing();
 };
@@ -334,8 +324,8 @@ void PvP(Ball_Class &ball, Paddle_Class &player1, Paddle_Class &player2)
     ball.Draw();
     player1.Draw();
     player2.Draw();
-    DrawText(TextFormat("%i", cpu_score) ,window_width/4 -20 ,20 ,80 ,WHITE);
-    DrawText(TextFormat("%i", player_score) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
+    DrawText(TextFormat("%i", GameController::GetInstance()->GetCpuScore()) ,window_width/4 -20 ,20 ,80 ,WHITE);
+    DrawText(TextFormat("%i", GameController::GetInstance()->GetPlayerScore()) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
 
     EndDrawing();
 };
@@ -350,12 +340,12 @@ void ShowWinnerScreen()
         std::string winnerText;
         Color winnerColor;
 
-        if (player_score >= max_score)
+        if (GameController::GetInstance()->GetPlayerScore() >= max_score)
         {
             winnerText = "Blue Wins!";
             winnerColor = BLUE;
         }
-        else if (cpu_score >= max_score)
+        else if (GameController::GetInstance()->GetCpuScore() >= max_score)
         {
             winnerText = "Red Wins!";
             winnerColor = RED;
