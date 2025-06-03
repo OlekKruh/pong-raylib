@@ -2,75 +2,6 @@
 
 #include "game.h"
 
-class Paddle_Class
-{
-    protected:
-
-    void LimitMovement()
-    {
-        if (y <= 0)
-        {
-            y = 5;
-        }
-        if (y + padl_height >= GetScreenHeight())
-        {
-            y = GetScreenHeight() - padl_height - 5;
-        }
-    }
-
-    public:
-    float x, y;
-    float speed_y;
-    float padl_width, padl_height;
-    Color color;
-    PlayerType type;
-
-    void Draw() const
-    {
-        DrawRectangleRounded(Rectangle{x, y, padl_width, padl_height}, 0.8f, 0, color);
-    }
-
-    void Update()
-    {
-        //paddle movement
-        if (type == PlayerType::Blue)
-        {
-            if(IsKeyDown(KEY_UP)) y = y - speed_y;
-            if(IsKeyDown(KEY_DOWN)) y = y + speed_y;
-        }
-        else if (type == PlayerType::Red)
-        {
-            if(IsKeyDown(KEY_W)) y = y - speed_y;
-            if(IsKeyDown(KEY_S)) y = y + speed_y;
-        }
-
-        //window border restriction
-        LimitMovement();
-    }
-
-};
-
-class CpuPaddle_Class: public Paddle_Class
-{
-    public:
-
-    void Update(int ball_y)
-    {
-        //paddle movement
-        if(y + padl_height/2 > ball_y)
-        {
-            y = y - speed_y;
-        }
-        if(y + padl_height/2 < ball_y)
-        {
-            y = y + speed_y;
-        }
-
-        //window border restriction
-        LimitMovement();
-    }
-};
-
 MenuOption ShowMenu()
 {
     std::vector<std::string> options = 
@@ -134,12 +65,8 @@ MenuOption ShowMenu()
     return MenuOption::Exit;
 }
 
-Paddle_Class player1; 
-Paddle_Class player2;
-CpuPaddle_Class cpu;
-
-void PvE(Ball &ball, Paddle_Class &player1, CpuPaddle_Class &cpu);
-void PvP(Ball &ball, Paddle_Class &player1, Paddle_Class &player2);
+void PvE(Ball &ball, Paddle &player1, CpuPaddle &cpu);
+void PvP(Ball &ball, Paddle &player1, Paddle &player2);
 void ShowWinnerScreen();
 
 int main() 
@@ -149,28 +76,24 @@ int main()
 
     Ball ball((float)window_width / 2, (float)window_height / 2, 8, 8, 12, WHITE);
 
-    player1.padl_width = 20;
-    player1.padl_height = 100;
-    player1.x = ((float)window_width - player1.padl_width - 20);
-    player1.y = ((float)window_height / 2 - player1.padl_height / 2);
-    player1.speed_y = 6;
-    player1.color = BLUE;
-    player1.type = PlayerType::Blue;
+    const std::pair<float, float> paddleSize{20.f, 100.f};
 
-    player2.padl_width = 20;
-    player2.padl_height = 100;
+    Paddle player1(
+        (float)(window_width - paddleSize.first - 20),
+        (float)(window_height / 2 - paddleSize.second / 2),
+        6,
+        paddleSize.first,
+        paddleSize.second,
+        BLUE,
+        PlayerType::Blue
+    );
+
+    Paddle player2(player1);
     player2.x = 20;
-    player2.y = (float)window_height / 2 - player2.padl_height / 2;
-    player2.speed_y = 6;
     player2.color = RED;
     player2.type = PlayerType::Red;
 
-    cpu.padl_width = 20;
-    cpu.padl_height = 100;
-    cpu.x = 20;
-    cpu.y = (float)window_height / 2 - cpu.padl_height / 2;
-    cpu.speed_y = 6;
-    cpu.color = RED;
+    CpuPaddle cpu(player2);
 
     MenuOption choice = ShowMenu();
 
@@ -209,13 +132,15 @@ int main()
     return 0;
 }
 
-void PvE(Ball &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
+void PvE(Ball &ball, Paddle &player1, CpuPaddle &cpu)
 {
     //1.Update game objects positions.
     ball.Update();
     player1.Update();
-    cpu.Update((int)ball.y);
-        
+
+    cpu.SetBallY((int)ball.y);
+    cpu.Update();
+
     //2.Collision detection
     if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
         Rectangle{player1.x, player1.y, player1.padl_width, player1.padl_height}))
@@ -247,7 +172,7 @@ void PvE(Ball &ball, Paddle_Class &player1, CpuPaddle_Class &cpu)
     EndDrawing();
 };
 
-void PvP(Ball &ball, Paddle_Class &player1, Paddle_Class &player2)
+void PvP(Ball &ball, Paddle &player1, Paddle &player2)
 {
     //1.Update game objects positions.
     ball.Update();

@@ -59,3 +59,52 @@ void Ball::ResetBall()
     speed_y *= speed_choices[GetRandomValue(0, 1)];
     speed_x *= speed_choices[GetRandomValue(0, 1)];
 }
+
+void Paddle::Draw() const
+{
+    DrawRectangleRounded(Rectangle{ x, y, padl_width, padl_height }, 0.8f, 0, color);
+}
+
+void Paddle::Update()
+{
+    if (type == PlayerType::Blue)
+    {
+        if (IsKeyDown(KEY_UP)) y = y - speed_y;
+        if (IsKeyDown(KEY_DOWN)) y = y + speed_y;
+    }
+    else if (type == PlayerType::Red)
+    {
+        if (IsKeyDown(KEY_W)) y = y - speed_y;
+        if (IsKeyDown(KEY_S)) y = y + speed_y;
+    }
+
+    //window border restriction
+    LimitMovement();
+}
+
+void Paddle::LimitMovement()
+{
+    if (y <= 0)
+    {
+        y = 5;
+    }
+    if (y + padl_height >= GetScreenHeight())
+    {
+        y = GetScreenHeight() - padl_height - 5;
+    }
+}
+
+void CpuPaddle::Update()
+{
+    if (y + padl_height / 2 > ball_y)
+    {
+        y = y - speed_y;
+    }
+    if (y + padl_height / 2 < ball_y)
+    {
+        y = y + speed_y;
+    }
+
+    //window border restriction
+    LimitMovement();
+}

@@ -74,3 +74,58 @@ public:
 	float radius;
 	Color color;
 };
+
+class Paddle : public IGameObject
+{
+public:
+	Paddle (float _x, float _y, float _speed_y, float _width, float _height, Color _color, PlayerType _type) :
+		x(_x),
+		y(_y),
+		speed_y(_speed_y),
+		padl_width(_width),
+		padl_height(_height),
+		color(_color),
+		type(_type) {
+	}
+
+	Paddle (const Paddle& paddle) :
+		x(paddle.x),
+		y(paddle.y),
+		speed_y(paddle.speed_y),
+		padl_width(paddle.padl_width),
+		padl_height(paddle.padl_height),
+		color(paddle.color),
+		type(paddle.type) {
+	}
+
+	void Draw() const override;
+	void Update() override;
+
+protected:
+	void LimitMovement();
+
+public:
+	float x, y;
+	float speed_y;
+	float padl_width, padl_height;
+	Color color;
+	PlayerType type;
+};
+
+class CpuPaddle : public Paddle
+{
+public:
+	CpuPaddle(float _x, float _y, float _speed_y, float _width, float _height, Color _color) : 
+		Paddle(_x, _y, _speed_y, _width, _height, _color, PlayerType::Other)
+	{}
+
+	CpuPaddle(const Paddle& paddle) :
+		Paddle(paddle.x, paddle.y, paddle.speed_y, paddle.padl_width, paddle.padl_height, paddle.color, PlayerType::Other)
+	{}
+
+	void Update() override;
+	void SetBallY(int y) { ball_y = y; }
+
+private:
+	int ball_y = 0;
+};
