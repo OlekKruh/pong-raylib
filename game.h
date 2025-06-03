@@ -46,6 +46,8 @@ class IGameObject
 public:
 	virtual void Draw() const = 0;
 	virtual void Update() = 0;
+
+	virtual ~IGameObject() {};
 };
 
 class Ball : public IGameObject
@@ -54,13 +56,13 @@ public:
 	Ball(float _x, float _y, float _speed_x, float _speed_y, float _radius, Color _color) :
 		x(_x),
 		y(_y),
-		speed_x(_speed_y),
+		speed_x(_speed_x),
 		speed_y(_speed_y),
 		radius(_radius),
 		color(_color) {
 	}
 
-	~Ball() = default;
+	~Ball() override = default;
 
 	void Draw() const override;
 	void Update() override;
@@ -98,6 +100,8 @@ public:
 		type(paddle.type) {
 	}
 
+	~Paddle() override = default;
+
 	void Draw() const override;
 	void Update() override;
 
@@ -123,8 +127,10 @@ public:
 		Paddle(paddle.x, paddle.y, paddle.speed_y, paddle.padl_width, paddle.padl_height, paddle.color, PlayerType::Other)
 	{}
 
+	~CpuPaddle() override = default;
+
 	void Update() override;
-	void SetBallY(int y) { ball_y = y; }
+	void SetBallY(int _ball_y) { ball_y = _ball_y; }
 
 private:
 	int ball_y = 0;
