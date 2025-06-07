@@ -65,8 +65,6 @@ MenuOption ShowMenu()
     return MenuOption::Exit;
 }
 
-void PvE(Ball &ball, Paddle &player1, CpuPaddle &cpu);
-void PvP(Ball &ball, Paddle &player1, Paddle &player2);
 void ShowWinnerScreen();
 
 int main() 
@@ -94,31 +92,19 @@ int main()
     player2.type = PlayerType::Red;
 
     CpuPaddle cpu(player2);
+    cpu.SetBall(&ball);
 
     MenuOption choice = ShowMenu();
-
-    int playerScore = GameController::GetInstance()->GetPlayerScore();
-    int cpuScore = GameController::GetInstance()->GetCpuScore();
     switch(choice)
     {
         case MenuOption::OnePlayer:
-            while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
-            {
-                playerScore = GameController::GetInstance()->GetPlayerScore();
-                cpuScore = GameController::GetInstance()->GetCpuScore();
-                PvE(ball, player1, cpu);
-                if (IsKeyPressed(KEY_ESCAPE)) break;
-            }
+            ball.SetPaddles({ &player1, &cpu });
+            GameController::GetInstance()->Run({ &ball, &player1, &cpu });
             break;
 
         case MenuOption::TwoPlayers:
-            while(!WindowShouldClose() && playerScore < max_score && cpuScore < max_score)
-            {
-                playerScore = GameController::GetInstance()->GetPlayerScore();
-                cpuScore = GameController::GetInstance()->GetCpuScore();
-                PvP(ball, player1, player2);
-                if (IsKeyPressed(KEY_ESCAPE)) break;
-            }
+            ball.SetPaddles({ &player1, &player2 });
+            GameController::GetInstance()->Run({ &ball, &player1, &player2 });
             break;
 
         case MenuOption::Exit:
@@ -131,83 +117,6 @@ int main()
     CloseWindow();
     return 0;
 }
-
-void PvE(Ball &ball, Paddle &player1, CpuPaddle &cpu)
-{
-    //1.Update game objects positions.
-    ball.Update();
-    player1.Update();
-
-    cpu.SetBallY((int)ball.y);
-    cpu.Update();
-
-    //2.Collision detection
-    if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
-        Rectangle{player1.x, player1.y, player1.padl_width, player1.padl_height}))
-    {
-        ball.speed_x *= -1;
-    }
-    if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
-        Rectangle{cpu.x, cpu.y, cpu.padl_width, cpu.padl_height}))
-    {
-        ball.speed_x *= -1;
-    }
-
-    //3.Drow game objects.
-    ClearBackground(BLACK);
-    BeginDrawing();
-
-    //fiald decor
-    DrawLine(window_width/2, 0, window_width/2, window_height, YELLOW);
-    DrawCircle(window_width/2, window_height/2, 250, transparent_yellow);
-
-    //elements ball, padls
-    ball.Draw();
-    player1.Draw();
-    cpu.Draw();
-
-    DrawText(TextFormat("%i", GameController::GetInstance()->GetCpuScore()) ,window_width/4 -20 ,20 ,80 ,WHITE);
-    DrawText(TextFormat("%i", GameController::GetInstance()->GetPlayerScore()) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
-
-    EndDrawing();
-};
-
-void PvP(Ball &ball, Paddle &player1, Paddle &player2)
-{
-    //1.Update game objects positions.
-    ball.Update();
-    player1.Update();
-    player2.Update();
-        
-    //2.Collision detection
-    if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
-        Rectangle{player1.x, player1.y, player1.padl_width, player1.padl_height}))
-    {
-        ball.speed_x *= -1;
-    }
-    if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
-        Rectangle{player2.x, player2.y, player2.padl_width, player2.padl_height}))
-    {
-        ball.speed_x *= -1;
-    }
-
-    //3.Drow game objects.
-    ClearBackground(BLACK);
-    BeginDrawing();
-
-    //fiald decor
-    DrawLine(window_width/2, 0, window_width/2, window_height, YELLOW);
-    DrawCircle(window_width/2, window_height/2, 250, transparent_yellow);
-
-    //elements ball, padls
-    ball.Draw();
-    player1.Draw();
-    player2.Draw();
-    DrawText(TextFormat("%i", GameController::GetInstance()->GetCpuScore()) ,window_width/4 -20 ,20 ,80 ,WHITE);
-    DrawText(TextFormat("%i", GameController::GetInstance()->GetPlayerScore()) , 3 * window_width/4 -20 ,20 ,80 ,WHITE);
-
-    EndDrawing();
-};
 
 void ShowWinnerScreen()
 {

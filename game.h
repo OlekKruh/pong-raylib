@@ -14,6 +14,8 @@ const int max_score = 5;
 enum class PlayerType { Blue, Red, Other };
 enum class MenuOption { OnePlayer, TwoPlayers, Exit };
 
+class IGameObject;
+
 class GameController
 {
 	// private constructor allows creation from this class only
@@ -28,6 +30,8 @@ class GameController
 public:
 	// https://refactoring.guru/design-patterns/singleton/cpp/example#example-0
 	static GameController* GetInstance();
+
+	void Run(const std::vector<IGameObject*> _objects);
 
 	void IncreaseCpuScore();
 	void IncreasePlayerScore();
@@ -50,6 +54,8 @@ public:
 	virtual ~IGameObject() {};
 };
 
+class Paddle;
+
 class Ball : public IGameObject
 {
 public:
@@ -67,6 +73,8 @@ public:
 	void Draw() const override;
 	void Update() override;
 
+	void SetPaddles(const std::vector<Paddle*> _paddles);
+
 private:
 	void ResetBall();
 
@@ -75,6 +83,9 @@ public:
 	float speed_x, speed_y;
 	float radius;
 	Color color;
+
+private:
+	std::vector<Paddle*> paddles;
 };
 
 class Paddle : public IGameObject
@@ -130,8 +141,8 @@ public:
 	~CpuPaddle() override = default;
 
 	void Update() override;
-	void SetBallY(int _ball_y) { ball_y = _ball_y; }
+	void SetBall(Ball* _ball) { ball = _ball; }
 
 private:
-	int ball_y = 0;
+	Ball* ball = nullptr;
 };
